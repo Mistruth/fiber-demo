@@ -10,11 +10,11 @@ export default merge(baseConfig, {
     include: "src/**"
   },
   plugins: [
-    serve(),
+    serve("dist"),
     livereload(),
     htmlTemplate({
       template: "demo/index.html",
-      target: "index.html"
+      target: "../index.html"
     })
   ]
 })
