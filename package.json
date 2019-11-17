@@ -1,0 +1,16 @@
+{
+  "name": "luba",
+  "version": "1.0.0",
+  "description": "",
+  "main": "rollup.config.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "rollup-plugin-terser": "^5.1.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
