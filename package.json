@@ -5,15 +5,26 @@
   "main": "rollup.config.js",
   "dependencies": {},
   "devDependencies": {
+    "@babel/preset-env": "^7.7.4",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.6",
     "merge": "^1.2.1",
+    "ora": "^4.0.3",
+    "rimraf": "^3.0.0",
     "rollup-plugin-generate-html-template": "^1.5.0",
     "rollup-plugin-livereload": "^1.0.4",
     "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-terser": "^5.1.2"
+    "rollup-plugin-terser": "^5.1.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0",
+    "webpack-merge": "^4.2.2"
   },
   "scripts": {
-    "build": "rollup -c ./config/rollup.base.config.js",
-    "dev": "rollup --watch -c ./config/rollup.dev.config.js && NODE_ENV=development"
+    "build": "rollup -c ./scripts/rollup.base.config.js",
+    "watch": "rollup --watch -c ./scripts/rollup.dev.config.js && NODE_ENV=development",
+    "dev": "node scripts/webpack/start.js",
+    "buildApp": "node scripts/webpack/build.js"
   },
   "author": "",
   "license": "ISC"
