@@ -1,4 +1,5 @@
 const path = require("path")
+const HtmlWebpackPlugin = require("html-webpack-plugin")
 
 const resolve = dir => path.resolve(__dirname, "../../../", dir)
 
@@ -11,16 +12,33 @@ module.exports = {
   module: {
     rules: [
       {
-        test: "/.js$/",
+        test: /\.jsx?$/,
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/preset-env"],
+            babelrc: false,
+            presets: [
+              [
+                "@babel/preset-env",
+                {
+                  corejs: 3,
+                  modules: false,
+                  useBuiltIns: "entry"
+                }
+              ],
+              "@babel/preset-react"
+            ],
+            plugins: ["@babel/plugin-proposal-class-properties"],
             cacheDirectory: true
           }
         },
         exclude: /node_module/
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: resolve("app/index.html")
+    })
+  ]
 }
