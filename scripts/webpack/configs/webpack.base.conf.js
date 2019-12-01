@@ -1,34 +1,34 @@
-const path = require("path")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const resolve = dir => path.resolve(__dirname, "../../../", dir)
+const resolve = dir => path.resolve(__dirname, '../../../', dir)
 
 module.exports = {
-  entry: resolve("app"),
+  entry: resolve('app'),
   output: {
-    path: resolve("bundles")
+    path: resolve('bundles')
   },
-  mode: process.env.NODE_ENV === "production" ? "production" : "development",
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
             babelrc: false,
             presets: [
               [
-                "@babel/preset-env",
+                '@babel/preset-env',
                 {
                   corejs: 3,
                   modules: false,
-                  useBuiltIns: "entry"
+                  useBuiltIns: 'entry'
                 }
               ],
-              "@babel/preset-react"
+              '@babel/preset-react'
             ],
-            plugins: ["@babel/plugin-proposal-class-properties"],
+            plugins: ['@babel/plugin-proposal-class-properties'],
             cacheDirectory: true
           }
         },
@@ -38,7 +38,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: resolve("app/index.html")
+      template: resolve('app/index.html')
     })
   ]
 }
