@@ -55,6 +55,7 @@ function reconcileWork(didout) {
 function reconcile(WIP) {
   WIP.parentNode = getParentNode(WIP)
   WIP.tag == HOOK ? updateHOOK(WIP) : updateHost(WIP)
+  // debugger
   commitQueue.push(WIP)
 
   if (WIP.child) return WIP.child
@@ -159,7 +160,6 @@ function shouldPlace(fiber) {
 }
 
 function commitWork(fiber) {
-  debugger
   commitQueue.forEach(c => {
     if (c.parent) commit(c)
   })

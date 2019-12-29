@@ -1,34 +1,73 @@
 import { push, pop, peek } from './heapify'
 
-let taskQueue = []
-let currentTask = null
-let currentCallback = null
+const [HOST] = [0]
+let WIP = null
 let scheduling = false
+let currentTask = null
+let currenfn = null
 let frameDeadline = 0
 let frameLength = 5
+const TaskQueue = []
 
-export function scheduleCallback(callback) {
+export function render(vnode, node, callback) {
+  const fiberRoot = {
+    tag: HOST,
+    node,
+    props: {
+      children: vnode
+    },
+    callback
+  }
+
+  scheduleWork(fiberRoot)
+}
+
+function scheduleWork(root) {
+  WIP = root
+  scheduleCallBack(callback)
+}
+
+function scheduleCallBack(callback) {
   const currentTime = getTime()
   let startTime = currentTime
-  let timeout = 5000
-  let dueTime = startTime + timeout
 
   let newTask = {
-    callback,
     startTime,
-    dueTime
+    dueTime: startTime + 5000,
+    callback
   }
 
   push(taskQueue, newTask)
 
-  currentCallback = flushWork
+  currenfn = flushWork
 
   if (!scheduling) {
     planWork()
     scheduling = true
   }
+}
 
-  return newTask
+function performWork() {
+  if (currenfn) {
+    let currentTime = getTime()
+    frameDeadline = currentTime + frameLength // 每一帧5ms后不能再进行
+    let moreWork = currenfn(currentTime)
+
+    // 是否继续执行
+    if (moreWork) {
+      planWork()
+    } else {
+      scheduling = false
+      currentCallback = null
+    }
+  }
+}
+
+// 如果有其他的工作，那么下一次Task再执行
+function planWork() {
+  setTimeout(() => {
+    performWork()
+  }, 0)
 }
 
 function flushWork(iniTime) {
@@ -52,7 +91,7 @@ function workLoop(iniTime) {
       currentTask.callback = null
       const didout = currentTask.dueTime <= currentTime
 
-      let next = callback(didout)
+      let next = callback(didout) // reconcile
       if (next) {
         currentTask.callback = next
       } else {
@@ -70,37 +109,10 @@ function workLoop(iniTime) {
     return false
   }
 }
-
-function performWork() {
-  if (currentCallback) {
-    let currentTime = getTime()
-    frameDeadline = currentTime + frameLength
-    let moreWork = currentCallback(currentTime)
-
-    // 是否继续执行
-    if (moreWork) {
-      planWork()
-    } else {
-      scheduling = false
-      currentCallback = null
-    }
-  }
-}
-
-const planWork = (() => {
-  if (typeof MessageChannel !== 'undefined') {
-    const channel = new MessageChannel()
-    const port = channel.port2
-    channel.port1.onmessage = performWork
-
-    return () => port.postMessage(null)
-  }
-
-  return () => setTimeout(performWork, 0)
-})()
-
 export function shouldYeild() {
   return getTime() >= frameDeadline
 }
 
-const getTime = () => performance.now()
+function getTime() {
+  return performance.now()
+}
