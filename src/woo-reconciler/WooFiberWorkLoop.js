@@ -32,4 +32,23 @@ export function computeExpirationForFiber(currentTime, fiber, suspenseConfig) {
 
 export const scheduler = scheduleUpdateOnFiber
 
-export function scheduleUpdateOnFiber(fiber, expirationTime) {}
+export function scheduleUpdateOnFiber(fiber, expirationTime) {
+  const root = markUpdateTimeFromFiberRoot(fiber, expirationTime)
+}
+
+function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
+  if (fiber.expirationTime < expirationTime) {
+    fiber.expirationTime = expirationTime
+  }
+
+  let alternate = fiber.alternate
+
+  if (alternate !== null && alternate.expirationTime < expirationTime) {
+    alternate.expirationTime = expirationTime
+  }
+
+  let node = fiber.return
+
+  let root = null
+  // if(node === null && fiber.tag === )
+}

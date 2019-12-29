@@ -18,17 +18,25 @@ module.exports = {
           options: {
             babelrc: false,
             presets: [
-              [
-                '@babel/preset-env',
-                {
-                  corejs: 3,
-                  modules: false,
-                  useBuiltIns: 'entry'
-                }
-              ],
-              '@babel/preset-react'
+              // [
+              //   '@babel/preset-env',
+              //   {
+              //     corejs: 3,
+              //     modules: false,
+              //     useBuiltIns: 'entry'
+              //   }
+              // ],
+              // '@babel/preset-react'
             ],
-            plugins: ['@babel/plugin-proposal-class-properties'],
+            plugins: [
+              // '@babel/plugin-proposal-class-properties',
+              [
+                '@babel/plugin-transform-react-jsx',
+                {
+                  pragma: 'h'
+                }
+              ]
+            ],
             cacheDirectory: true
           }
         },

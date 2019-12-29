@@ -1,7 +1,6 @@
-import React, { Component } from 'react'
+// import React, { Component } from 'react'
+import { h } from './fre'
 
-export default class App extends Component {
-  render() {
-    return <div>1</div>
-  }
+export default function App() {
+  return <div>1</div>
 }
