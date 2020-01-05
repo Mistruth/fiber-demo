@@ -24,8 +24,19 @@ export function render(vnode, node, callback) {
 
 function scheduleWork(root) {
   WIP = root
-  scheduleCallBack(callback)
+  scheduleCallBack(reconcileWork)
 }
+
+function reconcileWork(didout) {
+  let suspend = null
+  while (WIP && (shouldYeild() || didout)) {
+    try {
+      WIP = reconcile(WIP)
+    } catch (e) {}
+  }
+}
+
+function reconcile(root) {}
 
 function scheduleCallBack(callback) {
   const currentTime = getTime()

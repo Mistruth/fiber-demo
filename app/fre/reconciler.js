@@ -18,6 +18,7 @@ export function render(vnode, node, done) {
     props: { children: vnode },
     done
   }
+
   scheduleWork(rootFiber)
 }
 
@@ -55,7 +56,7 @@ function reconcileWork(didout) {
 function reconcile(WIP) {
   WIP.parentNode = getParentNode(WIP)
   WIP.tag == HOOK ? updateHOOK(WIP) : updateHost(WIP)
-  // debugger
+
   commitQueue.push(WIP)
 
   if (WIP.child) return WIP.child
@@ -78,6 +79,7 @@ function updateHOOK(WIP) {
   if (!children.type) {
     children = createText(children)
   }
+  debugger
   reconcileChildren(WIP, children)
 }
 

@@ -33,7 +33,7 @@ module.exports = {
               [
                 '@babel/plugin-transform-react-jsx',
                 {
-                  pragma: 'h'
+                  pragma: 'createElement'
                 }
               ]
             ],
