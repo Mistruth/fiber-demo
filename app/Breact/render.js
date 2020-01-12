@@ -1,6 +1,6 @@
 import { getCurrentTime, getExipreTime, scheduleWork } from './workloop'
 
-const [HOST] = [0]
+const [RENDER] = [0]
 
 export function render(vnode, container, callback) {
   // react 还判断了root是否存在 挂在到了container上面
@@ -9,61 +9,58 @@ export function render(vnode, container, callback) {
     callback
   }
   //TODO unbatchedUpdates 用于集成setState的
-  updateContainer(FiberRoot, vnode, null)
+  updateContainer(FiberRoot, vnode, null, RENDER)
 }
 
-function updateContainer(FiberRoot, vnode, callback) {
+function updateContainer(FiberRoot, vnode, callback, tag) {
   // TODO suspense
-  const current = (FiberRoot.current = createContainer(FiberRoot, vnode, true))
+  // 生成第一个fiberRoot对象（payload上app）
+  const current = (FiberRoot.current = createContainer(FiberRoot, tag))
+
+  // 获取当前时间
   const currentTime = getCurrentTime()
 
-  const expireTime = getExipreTime(currentTime)
-  current.expireTime = expireTime
+  // 获取过期时间  (是指这一次更新的过期)
+  const expireTime = getExipreTime(current, currentTime)
 
-  const update = createUpdate(expireTime)
+  const update = createUpdate(expireTime, callback, vnode, tag)
 
   update.payload = { element: vnode }
-
-  if (callback) {
-    update.callback = callback
-  }
-
   // 传入rootFiber
   enqueueUpdate(current, update)
   scheduleWork(current, expireTime)
 }
 
-function createContainer(FiberRoot, vnode, isHost = false) {
-  const RootFiber = new createFiber(vnode, isHost)
+function createContainer(FiberRoot, tag) {
+  const RootFiber = new createFiber(tag)
   RootFiber.startNode = FiberRoot
   return RootFiber
 }
 
-function createFiber(vnode, isHost) {
-  if (isHost) {
-    this.type = HOST
-  } else {
-    this.type = vnode.type || null
-  }
-  this.props = vnode || null
+function createFiber(tag) {
+  this.type = null
+
+  this.tag = tag // 表明优先级 是那种类型的fiber
+  // this.props = vnode || null
   this.child = null
   this.return = null
 
   this.updateQueue = null
 
-  this.expireTime = null
-
+  this.expireTime = 0
   this.alternate = null
 
   this.memoizedState = null
 }
 
-function createUpdate(expireTime) {
+function createUpdate(expireTime, callback, vnode, tag) {
   return {
     expireTime,
-    type: 0,
-    callback: null,
-    payload: null,
+    type: tag,
+    callback,
+    payload: {
+      element: vnode
+    },
     next: null,
     nextEffect: null
   }
@@ -71,7 +68,7 @@ function createUpdate(expireTime) {
 
 function enqueueUpdate(fiber, update) {
   // 获取current的alternate
-  const alternate = fiber.alternate
+  const alternate = fiber.alternate // 一开始获取不到
 
   let queue1
   let queue2

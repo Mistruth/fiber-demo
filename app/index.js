@@ -4,7 +4,7 @@
 
 // render(<App></App>, document.getElementById('app'))
 
-import { createElement, render } from './Breact'
+import { createElement, render } from './Creact'
 import App from './App'
 
 render(<App></App>, document.getElementById('app'))
