@@ -1,14 +1,22 @@
+import { Fiber } from './Fiber'
+import { createText } from './createElement'
+
 let WIP = null
 const [HOST, HOOKCOMPONENT] = [0, 1]
-const [DELETE] = [2]
+const [DELETE, UPDATE, PLACE] = [2, 3, 4]
 let commitQueue = []
 const DEFAULTKEY = 'DEFAULTKEY'
+
+let n = 0
 
 export function reconcileWork(RootFiber) {
   // TODO 构建fiber树
   WIP = createWorkInProgress(RootFiber)
 
-  WIP = reconcile(WIP)
+  while (WIP && n <= 4) {
+    WIP = reconcile(WIP)
+    n++
+  }
 }
 
 function reconcile(fiber) {
@@ -20,10 +28,28 @@ function reconcile(fiber) {
       updateHooks(fiber)
       break
   }
+
+  if (fiber.child) return fiber.child
+  while (fiber) {
+    if (fiber.sibling) {
+      return fiber.sibling
+    }
+    fiber = fiber.return
+  }
 }
 
 function updateHOST(fiber) {
   reconcileChildren(fiber, fiber.payload.elements)
+}
+
+function updateHooks(fiber) {
+  const vnode = fiber.payload.elements
+  let children = vnode.type(vnode.props)
+
+  // if (!children.type) {
+  //   children = createText(children)
+  // }
+  // reconcileChildren(fiber, children)
 }
 
 function reconcileChildren(WIP, children) {
@@ -51,11 +77,17 @@ function reconcileChildren(WIP, children) {
     }
   }
 
+  let prevFiber = null
+
   for (const k in newFibers) {
+    let newFiber = newFibers[k]
+    let oldFiber = store[k]
+
+    if (oldFiber) {
+      // 更新旧fiber
+    }
   }
 }
-
-function updateHooks() {}
 
 function createWorkInProgress(fiber) {
   const obj = {

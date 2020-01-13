@@ -39,6 +39,6 @@ export function createElement(type, attrs) {
   }
 }
 
-function createText(vnode) {
+export function createText(vnode) {
   return { type: 'text', props: { textValue: vnode } }
 }

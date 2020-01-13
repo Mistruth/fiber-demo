@@ -32,7 +32,9 @@ import { createElement } from './Breact'
 export default function App() {
   return (
     <div>
-      <div>123123</div>
+      <p>
+        <span></span>
+      </p>
     </div>
   )
 }
