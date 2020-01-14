@@ -1,9 +1,8 @@
 import { Fiber } from './Fiber'
-import { createText } from './createElement'
 
-let WIP = null
-const [HOST, HOOKCOMPONENT] = [0, 1]
-const [DELETE, UPDATE, PLACE] = [2, 3, 4]
+let WIP = null // 当前正在工作的WIP
+const [HOST, HOOKCOMPONENT, CLASSCOMPONENT] = [0, 1, 2]
+const [DELETE, UPDATE, PLACEMENT] = [2, 3, 4]
 let commitQueue = []
 const DEFAULTKEY = 'DEFAULTKEY'
 
@@ -14,18 +13,22 @@ export function reconcileWork(RootFiber) {
   WIP = createWorkInProgress(RootFiber)
 
   while (WIP && n <= 4) {
+    console.log(WIP)
     WIP = reconcile(WIP)
     n++
   }
 }
 
 function reconcile(fiber) {
-  switch (fiber.type) {
+  switch (fiber.tag) {
     case HOST:
       updateHOST(fiber)
       break
     case HOOKCOMPONENT:
       updateHooks(fiber)
+      break
+    case CLASSCOMPONENT:
+      updateClass(fiber)
       break
   }
 
@@ -39,22 +42,24 @@ function reconcile(fiber) {
 }
 
 function updateHOST(fiber) {
-  reconcileChildren(fiber, fiber.payload.elements)
+  if (fiber.type) {
+    fiber.startNode = document.createElement(fiber.type)
+  }
+
+  reconcileChildren(fiber, fiber.children)
 }
 
 function updateHooks(fiber) {
-  const vnode = fiber.payload.elements
-  let children = vnode.type(vnode.props)
+  const children = fiber.type(fiber.children.props || {})
 
-  // if (!children.type) {
-  //   children = createText(children)
-  // }
-  // reconcileChildren(fiber, children)
+  reconcileChildren(fiber, children)
 }
 
-function reconcileChildren(WIP, children) {
-  let oldFibers = WIP.prevFibers
-  let newFibers = (WIP.prevFibers = [children])
+function updateClass(fiber) {}
+
+function reconcileChildren(fiber, children) {
+  let oldFibers = fiber.prevFibers
+  let newFibers = (fiber.prevFibers = [new Fiber(null, children)])
 
   let store = {}
 
@@ -72,7 +77,7 @@ function reconcileChildren(WIP, children) {
       // 复用
       store[k] = newFiber
     } else {
-      oldFiber.op = DELETE
+      oldFiber.effectTag = DELETE
       commitQueue.push(oldFiber)
     }
   }
@@ -82,21 +87,45 @@ function reconcileChildren(WIP, children) {
   for (const k in newFibers) {
     let newFiber = newFibers[k]
     let oldFiber = store[k]
+    // newFiber.type
+
+    if (typeof children.type === 'function') {
+      newFiber.tag = HOOKCOMPONENT
+    } else {
+      newFiber.tag = HOST
+    }
 
     if (oldFiber) {
       // 更新旧fiber
+      newFiber.effectTag = UPDATE
+      commitQueue.push(newFiber)
+    } else if (newFiber) {
+      newFiber.effectTag = PLACEMENT
+      commitQueue.push(newFiber)
     }
+
+    if (prevFiber) {
+      prevFiber.sibling = newFiber
+    } else {
+      fiber.child = newFiber
+    }
+    newFiber.return = fiber
+
+    prevFiber = newFiber
   }
+
+  if (prevFiber) prevFiber.sibling = null
 }
 
 function createWorkInProgress(fiber) {
   const obj = {
     expirationTime: fiber.expirationTime,
     type: fiber.type,
+    tag: fiber.tag,
     startNode: fiber.startNode,
     return: fiber.return,
     child: fiber.child,
-    payload: fiber.payload,
+    children: fiber.children,
     updateQueue: fiber.updateQueue
   }
   obj.current = fiber

@@ -31,7 +31,7 @@ import { createElement } from './Breact'
 
 export default function App() {
   return (
-    <div>
+    <div className='haha'>
       <p>
         <span></span>
       </p>
