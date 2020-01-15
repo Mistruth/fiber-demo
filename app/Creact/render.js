@@ -2,14 +2,14 @@ import { FiberRoot } from './FiberRoot'
 import { Fiber } from './Fiber'
 import { reconcileWork } from './reconciler'
 
-const [HOST] = [0]
+const [HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT] = [0, 1, 2, 3]
 
 let isScheduling = false
 
 export function render(vnode, dom, callback) {
   const FiberRootNode = new FiberRoot(dom, callback)
-  const current = (FiberRootNode.current = new Fiber(HOST, vnode))
-  current.startNode = FiberRootNode
+  const current = (FiberRootNode.current = new Fiber(HOSTROOT, vnode))
+  current.stateNode = FiberRootNode
   scheduleWork(current)
 }
 

@@ -4,7 +4,7 @@ export function Fiber(tag, vnode) {
 
   this.tag = tag
   this.type = null
-  this.startNode = null
+  this.stateNode = null
   this.return = null
   this.child = null
   this.alternate = null

@@ -33,7 +33,7 @@ export default function App() {
   return (
     <div className='haha'>
       <p>
-        <span></span>
+        <span>1</span>
       </p>
     </div>
   )

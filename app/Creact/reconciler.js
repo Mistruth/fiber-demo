@@ -1,21 +1,19 @@
 import { Fiber } from './Fiber'
 
 let WIP = null // 当前正在工作的WIP
-const [HOST, HOOKCOMPONENT, CLASSCOMPONENT] = [0, 1, 2]
+const [HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT] = [0, 1, 2, 3]
 const [DELETE, UPDATE, PLACEMENT] = [2, 3, 4]
 let commitQueue = []
 const DEFAULTKEY = 'DEFAULTKEY'
 
-let n = 0
+let preCommit = null
 
 export function reconcileWork(RootFiber) {
   // TODO 构建fiber树
   WIP = createWorkInProgress(RootFiber)
 
-  while (WIP && n <= 4) {
-    console.log(WIP)
+  while (WIP) {
     WIP = reconcile(WIP)
-    n++
   }
 }
 
@@ -23,6 +21,9 @@ function reconcile(fiber) {
   switch (fiber.tag) {
     case HOST:
       updateHOST(fiber)
+      break
+    case HOSTROOT:
+      updateHOSTROOT(fiber)
       break
     case HOOKCOMPONENT:
       updateHooks(fiber)
@@ -34,6 +35,11 @@ function reconcile(fiber) {
 
   if (fiber.child) return fiber.child
   while (fiber) {
+    // 已经遍历到根节点
+    if (fiber.tag === HOSTROOT) {
+      preCommit = fiber
+    }
+
     if (fiber.sibling) {
       return fiber.sibling
     }
@@ -41,12 +47,16 @@ function reconcile(fiber) {
   }
 }
 
+function updateHOSTROOT(fiber) {
+  reconcileChildren(fiber, fiber.children)
+}
+
 function updateHOST(fiber) {
   if (fiber.type) {
-    fiber.startNode = document.createElement(fiber.type)
+    fiber.stateNode = document.createElement(fiber.type)
   }
 
-  reconcileChildren(fiber, fiber.children)
+  reconcileChildren(fiber, fiber.children.props.children)
 }
 
 function updateHooks(fiber) {
@@ -58,6 +68,8 @@ function updateHooks(fiber) {
 function updateClass(fiber) {}
 
 function reconcileChildren(fiber, children) {
+  if (!children) return
+
   let oldFibers = fiber.prevFibers
   let newFibers = (fiber.prevFibers = [new Fiber(null, children)])
 
@@ -94,6 +106,7 @@ function reconcileChildren(fiber, children) {
     } else {
       newFiber.tag = HOST
     }
+    newFiber.type = children.type
 
     if (oldFiber) {
       // 更新旧fiber
@@ -122,7 +135,7 @@ function createWorkInProgress(fiber) {
     expirationTime: fiber.expirationTime,
     type: fiber.type,
     tag: fiber.tag,
-    startNode: fiber.startNode,
+    stateNode: fiber.stateNode,
     return: fiber.return,
     child: fiber.child,
     children: fiber.children,
