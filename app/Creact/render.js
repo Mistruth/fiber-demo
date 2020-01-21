@@ -1,8 +1,7 @@
 import { FiberRoot } from './FiberRoot'
 import { Fiber } from './Fiber'
 import { reconcileWork } from './reconciler'
-
-const [HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT] = [0, 1, 2, 3]
+import { HOSTROOT } from './share'
 
 let isScheduling = false
 

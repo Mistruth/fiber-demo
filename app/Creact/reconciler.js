@@ -1,7 +1,7 @@
 import { Fiber } from './Fiber'
+import { HOST,HOOKCOMPONENT,CLASSCOMPONENT, HOSTROOT} from './share'
 
 let WIP = null // 当前正在工作的WIP
-const [HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT] = [0, 1, 2, 3]
 const [DELETE, UPDATE, PLACEMENT] = [2, 3, 4]
 let commitQueue = []
 const DEFAULTKEY = 'DEFAULTKEY'
@@ -15,6 +15,9 @@ export function reconcileWork(RootFiber) {
   while (WIP) {
     WIP = reconcile(WIP)
   }
+
+  console.log('final',preCommit)
+
 }
 
 function reconcile(fiber) {
@@ -56,78 +59,94 @@ function updateHOST(fiber) {
     fiber.stateNode = document.createElement(fiber.type)
   }
 
-  reconcileChildren(fiber, fiber.children.props.children)
+  const hostChildren = fiber.props.children || null
+
+  fiber.children = hostChildren
+  reconcileChildren(fiber)
 }
 
 function updateHooks(fiber) {
-  const children = fiber.type(fiber.children.props || {})
-
-  reconcileChildren(fiber, children)
+  // const children = fiber.type(fiber.children.props || {})
+  const Component = fiber.type(fiber.props)
+  fiber.stateNode = fiber.type
+  fiber.children = Component
+  reconcileChildren(fiber)
 }
 
 function updateClass(fiber) {}
 
-function reconcileChildren(fiber, children) {
-  if (!children) return
-
-  let oldFibers = fiber.prevFibers
-  let newFibers = (fiber.prevFibers = [new Fiber(null, children)])
-
+function reconcileChildren(fiber) {
+  
+  if(!fiber.children) return
+  let oldChildren = fiber.oldChildren
+  let newChildren = fiber.oldChildren = hashy(fiber.children)
   let store = {}
 
-  for (const k in oldFibers) {
-    let newFiber = newFibers[k]
-    let oldFiber = oldFibers[k]
+  // diff
+  for(const k in oldChildren) {
+    let oldChildVnode = oldChildren[k]
+    let newChildVnode = newChildren[k]
 
-    const newKey = newFiber.key || DEFAULTKEY
-    const oldKey = oldFiber.key || DEFAULTKEY
-    const newType = newFiber.type
-    const oldType = oldFiber.type
-
-    // 标签没有改变
-    if (newType === oldType && newKey === oldKey) {
-      // 复用
-      store[k] = newFiber
+    // TODO 可判断key
+    if(oldChildVnode.type === newChildVnode.type) {
+      store[k] = newKid
     } else {
-      oldFiber.effectTag = DELETE
-      commitQueue.push(oldFiber)
+      const emptyFiber = new Fiber(null,null)
+      emptyFiber.return = fiber
+      emptyFiber.effectTag = DELETE
+      commitQueue.push(emptyFiber)
     }
   }
 
   let prevFiber = null
+  let alternate = null
+  
+  // diff
+  for(const k in newChildren) {
+    let oldChildVnode = store[k]
+    let newChildVnode = newChildren[k]
 
-  for (const k in newFibers) {
-    let newFiber = newFibers[k]
-    let oldFiber = store[k]
-    // newFiber.type
-
-    if (typeof children.type === 'function') {
+    const newFiber = new Fiber(null,null)
+    
+    if(typeof newChildVnode.type === 'function') {
       newFiber.tag = HOOKCOMPONENT
     } else {
       newFiber.tag = HOST
     }
-    newFiber.type = children.type
+    newFiber.type = newChildVnode.type
+    newFiber.key = newChildVnode.key
+    newFiber.props = newChildVnode.props
+    newFiber.return = fiber
 
-    if (oldFiber) {
-      // 更新旧fiber
+    if(oldChildVnode) {
       newFiber.effectTag = UPDATE
+      newFiber.oldProps = oldChildVnode.props || {}
       commitQueue.push(newFiber)
-    } else if (newFiber) {
+    } else if(newChildVnode){
       newFiber.effectTag = PLACEMENT
       commitQueue.push(newFiber)
     }
 
-    if (prevFiber) {
+    // 链接链表
+    if(prevFiber) {
       prevFiber.sibling = newFiber
     } else {
       fiber.child = newFiber
     }
-    newFiber.return = fiber
-
     prevFiber = newFiber
   }
 
-  if (prevFiber) prevFiber.sibling = null
+  if(prevFiber) prevFiber.sibling = null
+
+  //   if (oldFiber) {
+  //     // 更新旧fiber
+  //     newFiber.effectTag = UPDATE
+  //     commitQueue.push(newFiber)
+  //   } else if (newFiber) {
+  //     newFiber.effectTag = PLACEMENT
+  //     commitQueue.push(newFiber)
+  //   }
+
 }
 
 function createWorkInProgress(fiber) {
@@ -139,9 +158,26 @@ function createWorkInProgress(fiber) {
     return: fiber.return,
     child: fiber.child,
     children: fiber.children,
-    updateQueue: fiber.updateQueue
+    updateQueue: fiber.updateQueue,
+    oldChildren: fiber.oldChildren,
+    effectTag: fiber.effectTag,
+    props: fiber.props,
+    oldProps: fiber.props
   }
   obj.current = fiber
   fiber.alternate = obj
   return obj
+}
+
+function hashy(arr){
+  if(!arr) return {}
+  if(arr.pop) {
+    const obj = {}
+    arr.forEach((item,index) =>{
+      const hash = '.' + index
+      obj[hash] = item
+    })
+    return obj
+  }
+  return {'.0':arr}
 }

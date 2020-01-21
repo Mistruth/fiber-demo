@@ -27,7 +27,7 @@
 //     </div>
 //   )
 // }
-import { createElement } from './Breact'
+import { createElement } from './Creact'
 
 export default function App() {
   return (
