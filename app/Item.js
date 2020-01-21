@@ -1,7 +1,7 @@
-import { h } from './fre'
+import { createElement } from './Creact'
 
 export default function Item(props) {
-  const { content } = props
+  const { content = '123123' } = props
 
   return <div>{content}</div>
 }

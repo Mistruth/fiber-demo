@@ -1,10 +1,9 @@
 import { Fiber } from './Fiber'
-import { HOST,HOOKCOMPONENT,CLASSCOMPONENT, HOSTROOT} from './share'
+import { HOST,HOOKCOMPONENT,CLASSCOMPONENT, HOSTROOT,DELETE,UPDATE,PLACEMENT} from './share'
+import { commitWork } from './commit'
 
 let WIP = null // 当前正在工作的WIP
-const [DELETE, UPDATE, PLACEMENT] = [2, 3, 4]
 let commitQueue = []
-const DEFAULTKEY = 'DEFAULTKEY'
 
 let preCommit = null
 
@@ -16,8 +15,10 @@ export function reconcileWork(RootFiber) {
     WIP = reconcile(WIP)
   }
 
-  console.log('final',preCommit)
-
+  if (preCommit) {
+    commitWork(preCommit,commitQueue)
+    return null
+  }
 }
 
 function reconcile(fiber) {
@@ -36,6 +37,7 @@ function reconcile(fiber) {
       break
   }
 
+  // walk
   if (fiber.child) return fiber.child
   while (fiber) {
     // 已经遍历到根节点
@@ -56,7 +58,12 @@ function updateHOSTROOT(fiber) {
 
 function updateHOST(fiber) {
   if (fiber.type) {
-    fiber.stateNode = document.createElement(fiber.type)
+    if(fiber.type === 'text') {
+      fiber.stateNode = document.createTextNode('')
+      fiber.stateNode.nodeValue = fiber.props.textValue
+    } else {
+      fiber.stateNode = document.createElement(fiber.type)
+    }
   }
 
   const hostChildren = fiber.props.children || null
@@ -75,6 +82,7 @@ function updateHooks(fiber) {
 
 function updateClass(fiber) {}
 
+// link + diff
 function reconcileChildren(fiber) {
   
   if(!fiber.children) return
@@ -99,13 +107,13 @@ function reconcileChildren(fiber) {
   }
 
   let prevFiber = null
-  let alternate = null
   
   // diff
   for(const k in newChildren) {
     let oldChildVnode = store[k]
     let newChildVnode = newChildren[k]
 
+    // TODO 通过判断创建或复用alternate Fiber
     const newFiber = new Fiber(null,null)
     
     if(typeof newChildVnode.type === 'function') {
@@ -137,15 +145,6 @@ function reconcileChildren(fiber) {
   }
 
   if(prevFiber) prevFiber.sibling = null
-
-  //   if (oldFiber) {
-  //     // 更新旧fiber
-  //     newFiber.effectTag = UPDATE
-  //     commitQueue.push(newFiber)
-  //   } else if (newFiber) {
-  //     newFiber.effectTag = PLACEMENT
-  //     commitQueue.push(newFiber)
-  //   }
 
 }
 
