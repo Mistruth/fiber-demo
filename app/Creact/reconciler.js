@@ -1,18 +1,24 @@
 import { Fiber } from './Fiber'
-import { HOST,HOOKCOMPONENT,CLASSCOMPONENT, HOSTROOT,DELETE,UPDATE,PLACEMENT} from './share'
+import { HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT, DELETE, UPDATE, PLACEMENT} from './share'
 import { commitWork } from './commit'
+import { shouldYeild } from './schedule'
 
 let WIP = null // 当前正在工作的WIP
 let commitQueue = []
 
 let preCommit = null
 
-export function reconcileWork(RootFiber) {
-  // TODO 构建fiber树
-  WIP = createWorkInProgress(RootFiber)
+export function reconcileWork(RootFiber, didout = true) {
+  // 构建fiber树
+  WIP = RootFiber
 
-  while (WIP) {
+  while (WIP && (didout || !shouldYeild())) {
     WIP = reconcile(WIP)
+  }
+
+  if(WIP) {
+    // 中止，重来
+   return 'NOTCOMPLETE'
   }
 
   if (preCommit) {
