@@ -1,7 +1,7 @@
 import { FiberRoot } from './FiberRoot'
 import { Fiber } from './Fiber'
 import { HOSTROOT,NormalPriority } from './share'
-import { scheduleWork } from './schedule'
+import { scheduleWork } from './scheduler'
 import { createUpdate,enqueue } from './update'
 
 export function render(vnode, dom, callback) {

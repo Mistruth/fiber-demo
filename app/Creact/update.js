@@ -15,6 +15,5 @@ export function enqueue(current,update){
     current.updateQueue = [update]
   } else {
     current.updateQueue.push(update)
-    // TODO 可以根据优先级进行排序
   }
 }

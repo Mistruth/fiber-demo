@@ -1,33 +1,35 @@
 import { Fiber } from './Fiber'
 import { HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT, DELETE, UPDATE, PLACEMENT} from './share'
 import { commitWork } from './commit'
-import { shouldYeild } from './schedule'
+import { shouldYeild } from './scheduler'
 
 let WIP = null // 当前正在工作的WIP
 let commitQueue = []
 
 let preCommit = null
 
-export function reconcileWork(RootFiber, didout = true) {
+export function performWork(RootFiber, didout = true) {
   // 构建fiber树
   WIP = RootFiber
 
   while (WIP && (didout || !shouldYeild())) {
-    WIP = reconcile(WIP)
+    console.log(WIP)
+    WIP = performUnitOfWork(WIP)
   }
 
-  if(WIP) {
-    // 中止，重来
-   return 'NOTCOMPLETE'
+  if (!didout) {
+    return performWork.bind(null)
   }
-
+ 
   if (preCommit) {
     commitWork(preCommit,commitQueue)
     return null
   }
+  
+  return null
 }
 
-function reconcile(fiber) {
+function performUnitOfWork(fiber) {
   switch (fiber.tag) {
     case HOST:
       updateHOST(fiber)
@@ -103,7 +105,7 @@ function reconcileChildren(fiber) {
 
     // TODO 可判断key
     if(oldChildVnode.type === newChildVnode.type) {
-      store[k] = newKid
+      store[k] = newChildVnode
     } else {
       const emptyFiber = new Fiber(null,null)
       emptyFiber.return = fiber
