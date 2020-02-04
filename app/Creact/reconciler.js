@@ -5,20 +5,18 @@ import { shouldYeild } from './scheduler'
 
 let WIP = null // 当前正在工作的WIP
 let commitQueue = []
-
 let preCommit = null
 
-export function performWork(RootFiber, didout = true) {
+export function performWorkOnRoot(RootFiber, didout = true) {
   // 构建fiber树
   WIP = RootFiber
 
-  while (WIP && (didout || !shouldYeild())) {
-    console.log(WIP)
+  while (WIP && (!shouldYeild() || didout)) {
     WIP = performUnitOfWork(WIP)
   }
 
   if (!didout) {
-    return performWork.bind(null)
+    return performWorkOnRoot.bind(null, WIP)
   }
  
   if (preCommit) {

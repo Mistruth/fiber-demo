@@ -1,19 +1,21 @@
-import { performWork} from './reconciler'
+import { performWorkOnRoot } from './reconciler'
 import { push,pop,peek } from './task'
 
 const taskQueue = []
-let WIP = null
 let currentCallback = null
 let currentTask = null
-let isPerformingWork = null
+let frameLength = 1000/60
+let frameDeadline = 0
+
+const channel = new MessageChannel();
+const port = channel.port2;
+channel.port1.onmessage = performWork;
 
 
 const getTime = () => performance.now()
 
 export function scheduleWork(fiber){
-
-  WIP = fiber
-  scheduleCallback(performWork)
+  scheduleCallback(performWorkOnRoot)
 }
 
 function scheduleCallback(callback){
@@ -22,7 +24,6 @@ function scheduleCallback(callback){
   let timeout = 5000
   const expirationTime = startTime + timeout
 
-
   const newTask = {
     expirationTime,
     startTime,
@@ -30,28 +31,42 @@ function scheduleCallback(callback){
   }
 
   push(taskQueue,newTask)
-  currentCallback = flushWork
+  requestHostCallback(flushWork)
 
   return newTask
 }
 
-function flushWork(hasTimeRemaining,initialTime){
+function performWork(){
+  if (currentCallback !== null) {
+    const currentTime = getTime();
+    frameDeadline = currentTime + frameLength;
+
+    let hasMoreWork = currentCallback(currentTime)
+    if(hasMoreWork) {
+      port.postMessage(null)
+    } else {
+      currentCallback = null
+    }
+  }
+}
+
+function flushWork(initialTime){
   isPerformingWork = true
   try {
-    return workLoop(hasTimeRemaining,initialTime)
+    return workLoop(initialTime)
   } finally {
     currentTask = null
     isPerformingWork = false
   }
 }
 
-function workLoop(hasTimeRemaining,initialTime){
+function workLoop(initialTime){
   let currentTime = initialTime
 
   currentTask = taskQueue[0]
   while(currentTask){
 
-    if(!hasTimeRemaining || shouldYeild()) {
+    if(currentTask.expirationTime > currentTime && shouldYeild()) {
       break
     }
 
@@ -65,8 +80,9 @@ function workLoop(hasTimeRemaining,initialTime){
   
       if(typeof continuationCallback === 'function'){
         currentTask.callback = continuationCallback;
+      } else {
+        pop(taskQueue)
       }
-      pop(taskQueue)
     } else {
       pop(taskQueue)
     }
@@ -81,7 +97,12 @@ function workLoop(hasTimeRemaining,initialTime){
 }
 
 export function shouldYeild() {
-  return false
+  return getTime() >= frameDeadline
+}
+
+function requestHostCallback(cb){
+  currentCallback = cb
+  port.postMessage(null);
 }
 
 
