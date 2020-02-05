@@ -6,6 +6,9 @@ let currentCallback = null
 let currentTask = null
 let frameLength = 1000/60
 let frameDeadline = 0
+let isPerformingWork = false
+
+export const rootFiber = []
 
 const channel = new MessageChannel();
 const port = channel.port2;
@@ -15,6 +18,7 @@ channel.port1.onmessage = performWork;
 const getTime = () => performance.now()
 
 export function scheduleWork(fiber){
+  rootFiber[0] = fiber
   scheduleCallback(performWorkOnRoot)
 }
 

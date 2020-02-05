@@ -1,3 +1,6 @@
+import { HOSTROOT } from './share'
+
+
 export function createUpdate(vnode,priority){
 
   const currentTime = performance.now()
@@ -16,4 +19,12 @@ export function enqueue(current,update){
   } else {
     current.updateQueue.push(update)
   }
+}
+
+export function processUpdateQueue(fiber){
+  if(fiber.tag !== HOSTROOT) throw new Error('')
+
+  const updateQueue = fiber.updateQueue
+
+  fiber.children = updateQueue[0].vnode
 }

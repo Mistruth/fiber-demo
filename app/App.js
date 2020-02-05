@@ -32,13 +32,15 @@ import { createElement } from './Creact'
 export default function App() {
   return (
     <div className='haha'>
-      <p>
-        <h1>12132</h1>
-        <span>1</span>
-        <Item></Item>
-        <Item></Item>
-        <Item></Item>
+      <p className="animate">
       </p>
+      <div>
+        {new Array(100000).fill('1').map(
+          (i)=>{
+            return <Item></Item>
+          }
+        )}
+      </div>
     </div>
   )
 }

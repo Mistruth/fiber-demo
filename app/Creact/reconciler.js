@@ -1,27 +1,32 @@
 import { Fiber } from './Fiber'
 import { HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT, DELETE, UPDATE, PLACEMENT} from './share'
 import { commitWork } from './commit'
-import { shouldYeild } from './scheduler'
+import { shouldYeild,rootFiber } from './scheduler'
+import { processUpdateQueue } from './update'
 
 let WIP = null // 当前正在工作的WIP
 let commitQueue = []
 let preCommit = null
 
-export function performWorkOnRoot(RootFiber, didout = true) {
+export const CurrentRootFiber = []
+
+export function performWorkOnRoot(didout = true) {
   // 构建fiber树
-  WIP = RootFiber
+  
+  WIP = rootFiber[0]
 
   while (WIP && (!shouldYeild() || didout)) {
     WIP = performUnitOfWork(WIP)
   }
 
+
   if (!didout) {
-    return performWorkOnRoot.bind(null, WIP)
+    rootFiber[0] = WIP
+    return performWorkOnRoot.bind(null)
   }
  
   if (preCommit) {
     commitWork(preCommit,commitQueue)
-    return null
   }
   
   return null
@@ -59,6 +64,7 @@ function performUnitOfWork(fiber) {
 }
 
 function updateHOSTROOT(fiber) {
+  processUpdateQueue(fiber)
   reconcileChildren(fiber, fiber.children)
 }
 

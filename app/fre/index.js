@@ -6,7 +6,8 @@ import {
   useEffect,
   useMemo,
   useCallback,
-  useRef
+  useRef,
+  useLayout
 } from './hooks'
 
 export {
@@ -20,5 +21,22 @@ export {
   useEffect,
   useMemo,
   useCallback,
+  useRef,
+  useLayout,
+  useLayout as useLayoutEffect
+}
+
+const Fre = {
+  h,
+  render,
+  scheduleWork,
+  options,
+  useState,
+  useReducer,
+  useEffect,
+  useMemo,
+  useCallback,
   useRef
 }
+
+export default Fre
