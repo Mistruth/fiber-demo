@@ -6,29 +6,37 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
     <style>
-    p {
+    .animate {
       height: 100px;
       width: 100px;
       background-color: pink;
       animation: scale 2s infinite ;
+      position: absolute;
     }
 
     @keyframes scale {
       0% {
-        transform: scale(1);
+        /* transform: translateX(0px); */
+        left: 0px;
       }
 
       50% {
-        transform: scale(2);
+        /* transform: translateX(200px); */
+        left: 200px;
       }
 
       100% {
-        transform: scale(1);
+        /* transform: translateX(0px); */
+        left: 0px;
       }
     }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <input type="text">
+      <button>按钮</button>
+      <div class="animate"></div>
+    </div>
   </body>
 </html>

@@ -15,12 +15,11 @@ export function performWorkOnRoot(didout = true) {
   
   WIP = rootFiber[0]
 
-  while (WIP && (!shouldYeild() || didout)) {
+  while (WIP && (!false || didout)) {
     WIP = performUnitOfWork(WIP)
   }
 
-
-  if (!didout) {
+  if (!didout && WIP) {
     rootFiber[0] = WIP
     return performWorkOnRoot.bind(null)
   }
