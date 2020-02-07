@@ -7,10 +7,10 @@
 import { createElement, render } from './Creact'
 import App from './App'
 
-// const div = document.querySelector('button')
+const div = document.querySelector('button')
 
-// div.onclick = ()=>{
-//   render(<App></App>, document.getElementById('app'))
-// }
+div.onclick = ()=>{
+  render(<App></App>, document.getElementById('app'))
+}
 
-render(<App></App>, document.getElementById('app'))
+// render(<App></App>, document.getElementById('app'))

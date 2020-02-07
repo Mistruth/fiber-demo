@@ -33,7 +33,7 @@ export default function App() {
   return (
     <div className='haha'>
       <div>
-        {new Array(1).fill('1').map(
+        {new Array(1000).fill('1').map(
           (i)=>{
             return <Item></Item>
           }

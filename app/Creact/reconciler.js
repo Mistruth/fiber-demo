@@ -15,7 +15,7 @@ export function performWorkOnRoot(didout = true) {
   
   WIP = rootFiber[0]
 
-  while (WIP && (!false || didout)) {
+  while (WIP && (!shouldYeild() || didout)) {
     WIP = performUnitOfWork(WIP)
   }
 

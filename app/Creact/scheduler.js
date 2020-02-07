@@ -4,7 +4,7 @@ import { push,pop,peek } from './task'
 const taskQueue = []
 let currentCallback = null
 let currentTask = null
-let frameLength = 16.6
+let frameLength = 5
 let frameDeadline = 0
 let isPerformingWork = false
 
@@ -50,6 +50,7 @@ function performWork(){
 
     if(hasMoreWork) {
       port.postMessage(null)
+      // performWork()
     } else {
       currentCallback = null
     }
@@ -78,7 +79,7 @@ function workLoop(initialTime){
 
     const callback = currentTask.callback
 
-    if(currentTask !== null) {
+    if(callback !== null) {
 
       currentTask.callback = null
       const didout = currentTask.expirationTime <= currentTime
@@ -103,8 +104,7 @@ function workLoop(initialTime){
 }
 
 export function shouldYeild() {
-  let res = getTime() >= frameDeadline
-  return res
+  return getTime() >= frameDeadline
 }
 
 function requestHostCallback(cb){
