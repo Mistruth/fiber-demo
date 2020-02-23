@@ -1,4 +1,4 @@
-import { DELETE, UPDATE, HOOKCOMPONENT, HOSTROOT, HOST } from './share'
+import { DELETE, NOWORK, UPDATE, HOOKCOMPONENT, HOSTROOT, HOST } from './share'
 
 export function commitWork(fiber, patchQueue) {
   // 提交阶段
@@ -26,6 +26,8 @@ function commit(patch) {
     const node = getParentDomNode(patch)
     node.appendChild(patch.stateNode)
   }
+
+  patch.effectTag = NOWORK
 }
 
 function getParentDomNode(patch) {

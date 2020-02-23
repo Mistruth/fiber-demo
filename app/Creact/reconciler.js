@@ -41,7 +41,6 @@ export function performWorkOnRoot(didout = true) {
 
   commitQueue = []
   preCommit = null
-  WIP = null
 
   return null
 }
@@ -138,6 +137,7 @@ function reconcileChildren(fiber) {
     let newChildVnode = newChildren[k]
 
     // TODO 通过判断创建或复用alternate Fiber
+    // 这里应该是根据情况重新创建
     const newFiber = new Fiber(null, null)
 
     if (typeof newChildVnode.type === 'function') {
