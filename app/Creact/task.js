@@ -1,4 +1,3 @@
-
 export function push(heap, node) {
   const i = heap.length
   heap.push(node)

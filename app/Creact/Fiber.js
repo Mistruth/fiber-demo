@@ -8,9 +8,8 @@ export function Fiber(tag, vnode) {
   this.return = null
   this.child = null
 
-
-  this.props = null;
-  this.oldProps = null;
+  this.props = null
+  this.oldProps = null
 
   // 副作用
   this.effectTag = null

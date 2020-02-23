@@ -1,9 +1,18 @@
 import { Fiber } from './Fiber'
-import { HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT, DELETE, UPDATE, PLACEMENT} from './share'
+import {
+  HOST,
+  HOOKCOMPONENT,
+  CLASSCOMPONENT,
+  HOSTROOT,
+  DELETE,
+  UPDATE,
+  PLACEMENT
+} from './share'
 import { commitWork } from './commit'
-import { shouldYeild,rootFiber } from './scheduler'
+import { shouldYeild, rootFiber } from './scheduler'
 import { processUpdateQueue } from './update'
 import { createElement } from './dom'
+import { resetCursor } from './hooks'
 
 let WIP = null // 当前正在工作的WIP
 let commitQueue = []
@@ -14,7 +23,7 @@ export const CurrentRootFiber = []
 
 export function performWorkOnRoot(didout = true) {
   // 构建fiber树
-  
+
   WIP = rootFiber[0]
 
   while (WIP && (!shouldYeild() || didout)) {
@@ -25,11 +34,15 @@ export function performWorkOnRoot(didout = true) {
     rootFiber[0] = WIP
     return performWorkOnRoot.bind(null)
   }
- 
+
   if (preCommit) {
-    commitWork(preCommit,commitQueue)
+    commitWork(preCommit, commitQueue)
   }
-  
+
+  commitQueue = []
+  preCommit = null
+  WIP = null
+
   return null
 }
 
@@ -85,6 +98,7 @@ function updateHooks(fiber) {
 
   currentHooksFiber = fiber
   const Component = fiber.type(fiber.props)
+  resetCursor()
 
   fiber.stateNode = fiber.type
   fiber.children = Component
@@ -95,22 +109,21 @@ function updateClass(fiber) {}
 
 // link + diff
 function reconcileChildren(fiber) {
-  
-  if(!fiber.children) return
+  if (!fiber.children) return
   let oldChildren = fiber.oldChildren
-  let newChildren = fiber.oldChildren = hashy(fiber.children)
+  let newChildren = (fiber.oldChildren = hashy(fiber.children))
   let store = {}
 
   // diff
-  for(const k in oldChildren) {
+  for (const k in oldChildren) {
     let oldChildVnode = oldChildren[k]
     let newChildVnode = newChildren[k]
 
     // TODO 可判断key
-    if(oldChildVnode.type === newChildVnode.type) {
+    if (oldChildVnode.type === newChildVnode.type) {
       store[k] = newChildVnode
     } else {
-      const emptyFiber = new Fiber(null,null)
+      const emptyFiber = new Fiber(null, null)
       emptyFiber.return = fiber
       emptyFiber.effectTag = DELETE
       commitQueue.push(emptyFiber)
@@ -118,16 +131,16 @@ function reconcileChildren(fiber) {
   }
 
   let prevFiber = null
-  
+
   // diff
-  for(const k in newChildren) {
+  for (const k in newChildren) {
     let oldChildVnode = store[k]
     let newChildVnode = newChildren[k]
 
     // TODO 通过判断创建或复用alternate Fiber
-    const newFiber = new Fiber(null,null)
-    
-    if(typeof newChildVnode.type === 'function') {
+    const newFiber = new Fiber(null, null)
+
+    if (typeof newChildVnode.type === 'function') {
       newFiber.tag = HOOKCOMPONENT
     } else {
       newFiber.tag = HOST
@@ -137,17 +150,17 @@ function reconcileChildren(fiber) {
     newFiber.props = newChildVnode.props
     newFiber.return = fiber
 
-    if(oldChildVnode) {
+    if (oldChildVnode) {
       newFiber.effectTag = UPDATE
       newFiber.oldProps = oldChildVnode.props || {}
       commitQueue.push(newFiber)
-    } else if(newChildVnode){
+    } else if (newChildVnode) {
       newFiber.effectTag = PLACEMENT
       commitQueue.push(newFiber)
     }
 
     // 链接链表
-    if(prevFiber) {
+    if (prevFiber) {
       prevFiber.sibling = newFiber
     } else {
       fiber.child = newFiber
@@ -155,8 +168,7 @@ function reconcileChildren(fiber) {
     prevFiber = newFiber
   }
 
-  if(prevFiber) prevFiber.sibling = null
-
+  if (prevFiber) prevFiber.sibling = null
 }
 
 function createWorkInProgress(fiber) {
@@ -179,19 +191,19 @@ function createWorkInProgress(fiber) {
   return obj
 }
 
-function hashy(arr){
-  if(!arr) return {}
-  if(arr.pop) {
+function hashy(arr) {
+  if (!arr) return {}
+  if (arr.pop) {
     const obj = {}
-    arr.forEach((item,index) =>{
+    arr.forEach((item, index) => {
       const hash = '.' + index
       obj[hash] = item
     })
     return obj
   }
-  return {'.0':arr}
+  return { '.0': arr }
 }
 
-export function getCurrentHookFiber(){
+export function getCurrentHookFiber() {
   return currentHooksFiber
 }

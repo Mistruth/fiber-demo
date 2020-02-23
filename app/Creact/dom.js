@@ -1,19 +1,18 @@
-export function createElement(fiber){
+export function createElement(fiber) {
   const type = fiber.type
   let dom
-  if(type === 'text') {
+  if (type === 'text') {
     dom = document.createTextNode('')
     dom.nodeValue = fiber.props.textValue
   } else {
     dom = document.createElement(fiber.type)
-    updateElement(dom,{},fiber.props)
+    updateElement(dom, {}, fiber.props)
   }
   return dom
 }
 
-export function updateElement(dom,oldProps,newProps){
-  for (let name in {...oldProps,...newProps}) {
-
+export function updateElement(dom, oldProps, newProps) {
+  for (let name in { ...oldProps, ...newProps }) {
     let oldValue = oldProps[name]
     let newValue = newProps[name]
 
@@ -24,7 +23,7 @@ export function updateElement(dom,oldProps,newProps){
           dom[name][k] = (newValue && newValue[k]) || ''
         }
       }
-    } else if (name[0]==='o' && name[1] === 'n') {
+    } else if (name[0] === 'o' && name[1] === 'n') {
       name = name.slice(2).toLowerCase()
       if (oldValue) dom.removeEventListener(name, oldValue)
       dom.addEventListener(name, newValue)

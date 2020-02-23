@@ -1,13 +1,13 @@
-import { createElement, useState } from "./Creact";
-import Item from "./Item";
+import { createElement, useState } from './Creact'
+import Item from './Item'
 
 export default function App() {
-  const [state, updateState] = useState(1);
+  const [state, updateState] = useState(1)
   return (
     <div>
       <button
         onClick={() => {
-          updateState(2);
+          updateState(2)
         }}
       >
         按钮
@@ -18,5 +18,5 @@ export default function App() {
       <Item></Item>
       <Item></Item>
     </div>
-  );
+  )
 }
