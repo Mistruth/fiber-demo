@@ -3,10 +3,12 @@ import { HOST, HOOKCOMPONENT, CLASSCOMPONENT, HOSTROOT, DELETE, UPDATE, PLACEMEN
 import { commitWork } from './commit'
 import { shouldYeild,rootFiber } from './scheduler'
 import { processUpdateQueue } from './update'
+import { createElement } from './dom'
 
 let WIP = null // 当前正在工作的WIP
 let commitQueue = []
 let preCommit = null
+let currentHooksFiber = null
 
 export const CurrentRootFiber = []
 
@@ -64,17 +66,12 @@ function performUnitOfWork(fiber) {
 
 function updateHOSTROOT(fiber) {
   processUpdateQueue(fiber)
-  reconcileChildren(fiber, fiber.children)
+  reconcileChildren(fiber)
 }
 
 function updateHOST(fiber) {
   if (fiber.type) {
-    if(fiber.type === 'text') {
-      fiber.stateNode = document.createTextNode('')
-      fiber.stateNode.nodeValue = fiber.props.textValue
-    } else {
-      fiber.stateNode = document.createElement(fiber.type)
-    }
+    fiber.stateNode = createElement(fiber)
   }
 
   const hostChildren = fiber.props.children || null
@@ -84,8 +81,11 @@ function updateHOST(fiber) {
 }
 
 function updateHooks(fiber) {
-  // const children = fiber.type(fiber.children.props || {})
+  // 当前WIP给到hooks
+
+  currentHooksFiber = fiber
   const Component = fiber.type(fiber.props)
+
   fiber.stateNode = fiber.type
   fiber.children = Component
   reconcileChildren(fiber)
@@ -190,4 +190,8 @@ function hashy(arr){
     return obj
   }
   return {'.0':arr}
+}
+
+export function getCurrentHookFiber(){
+  return currentHooksFiber
 }

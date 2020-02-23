@@ -1,4 +1,4 @@
-import { createElement, render } from './fre'
+import { createElement, render } from './Creact'
 import App from './App'
 
 render(<App></App>, document.getElementById('app'))
