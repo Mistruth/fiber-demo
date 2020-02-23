@@ -1,7 +1,15 @@
-import { createElement } from './fre'
+import { createElement } from "./Creact";
 
 export default function Item(props) {
-  const { content = '123123' } = props
+  const { content = "123123" } = props;
 
-  return <div>{content}</div>
+  return (
+    <div
+      onClick={() => {
+        console.log(1);
+      }}
+    >
+      {content}
+    </div>
+  );
 }

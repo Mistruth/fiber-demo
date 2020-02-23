@@ -1,4 +1,6 @@
 import { render } from './render'
 import { createElement } from './createElement'
 
-export { createElement, render }
+import { useState } from './hooks'
+
+export { createElement, render, useState }
