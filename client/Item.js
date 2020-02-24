@@ -1,4 +1,4 @@
-import { createElement } from "./Creact";
+import React from "react";
 
 export default function Item(props) {
   const { content = "123123" } = props;
