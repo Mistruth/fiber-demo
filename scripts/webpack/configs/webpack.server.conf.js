@@ -2,6 +2,8 @@ const path = require('path')
 const nodeExternals = require('webpack-node-externals')
 const resolve = dir => path.resolve(__dirname, '../../../', dir)
 
+const isProd = process.env.NODE_ENV === 'production'
+
 module.exports = {
   entry: resolve('server/app.ts'),
 
@@ -9,13 +11,14 @@ module.exports = {
     path: resolve('bundles'),
     filename: 'server.bundle.js'
   },
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  mode: isProd ? 'production' : 'development',
   externals: [nodeExternals()],
   target: 'node',
   node: {
     fs: 'empty',
     net: 'empty'
   },
+  watch: !isProd,
   resolve: {
     extensions: ['.tsx', '.ts', '.js']
   },

@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'production'
+// process.env.NODE_ENV = 'production'
 process.env.TARGET = 'app'
 
 const rm = require('rimraf')
@@ -6,11 +6,11 @@ const path = require('path')
 const webpack = require('webpack')
 const ora = require('ora')
 const spinner = ora('构建中')
-const webpackBaseConf = require('./configs/webpack.base.conf')
+const webpackBaseConf = require('./configs/webpack.client.conf')
 
 spinner.start()
 
-rm(path.join(__dirname, '../../', 'bundles'), err => {
+rm(path.join(__dirname, '../../', 'dist'), err => {
   if (err) throw err
 
   webpack(webpackBaseConf, (err, stats) => {

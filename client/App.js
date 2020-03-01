@@ -1,8 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Item from './Item'
 
 export default function App() {
   const [state, updateState] = useState(1)
+
+  useEffect(()=>{
+    updateState(2)
+  },[])
+
   return (
     <div>
       <button

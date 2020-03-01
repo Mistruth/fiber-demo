@@ -3,6 +3,6 @@ import baseController from '../controller/api/base'
 
 const router = new Router()
 
-router.get('/*', baseController)
+router.get('/app', baseController)
 
 export default router

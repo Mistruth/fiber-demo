@@ -1,15 +1,16 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-
+const ManifestPlugin = require('webpack-manifest-plugin');
+const isProd = process.env.NODE_ENV === 'production'
 const resolve = dir => path.resolve(__dirname, '../../../', dir)
 
 module.exports = {
   entry: resolve('client'),
   output: {
-    path: resolve('bundles'),
-    filename: 'client.bundle'
+    path: resolve('dist'),
+    filename: 'js/client.bundle.[hash:8].js'
   },
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  mode: isProd ? 'production' : 'development',
   devtool: 'cheap-source-map',
   module: {
     rules: [
@@ -47,6 +48,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: resolve('public/index.html')
-    })
+    }),
+    new ManifestPlugin()
   ]
 }
