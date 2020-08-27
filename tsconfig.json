@@ -21,11 +21,12 @@
     "strictNullChecks": true,
     "baseUrl": "./",
     "paths": {
-      
     }
   },
   "include": [
-    "app",
-    "packages"
+    "server",
+    "client"
+  ],
+  "exclude": [
   ]
 }

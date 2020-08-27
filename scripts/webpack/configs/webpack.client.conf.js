@@ -12,10 +12,13 @@ module.exports = {
   },
   mode: isProd ? 'production' : 'development',
   devtool: 'cheap-source-map',
+  resolve: {
+    extensions: ['ts', 'tsx', '.js', '.json']
+  },
   module: {
     rules: [
       {
-        test: /\.jsx|tsx|js|ts?$/,
+        test: /\.jsx|ts|js|tsx?$/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -32,16 +35,21 @@ module.exports = {
               '@babel/preset-react',
               '@babel/preset-typescript'
             ],
-            // plugins: [
-            //   // '@babel/plugin-proposal-class-properties',
-            //   [
-            //     '@babel/plugin-transform-react-jsx',
-            //   ]
-            // ],
+            plugins: [
+              ["import", { libraryName: "antd-mobile", style: "css" }] // `style: true` 会加载 less 文件
+            ],
             cacheDirectory: true
           }
         },
         exclude: /node_module/
+      },
+      {
+        test: /\.less$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'less-loader'
+        ]
       }
     ]
   },

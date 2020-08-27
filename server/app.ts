@@ -5,7 +5,7 @@ const app = new Koa()
 
 app.use(router.routes())
 
-app.use(serve('./dist'))
+// app.use(serve('./dist'))
 
 app.listen(8080,() => {
   console.log('the server is running at localhost:8080')

@@ -1,8 +1,9 @@
 import Router from 'koa-router'
-import baseController from '../controller/api/base'
+import personInfoClr from '../controller/api/personInfo'
 
 const router = new Router()
 
-router.get('/app', baseController)
+router.get('/api/personalInfo', personInfoClr)
+
 
 export default router

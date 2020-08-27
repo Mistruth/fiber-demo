@@ -1,5 +1,6 @@
 import React from 'react'
-import { render } from 'react-dom'
-import App from './App'
+import ReactDom from 'react-dom'
 
-render(<App></App>, document.getElementById('app'))
+import App from './App.tsx'
+
+ReactDom.render(React.createElement(App), document.getElementById('app'))

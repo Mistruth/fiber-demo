@@ -12,7 +12,13 @@ var compiler = webpack(webpackDevConf)
 const server = new DevServer(compiler, {
   disableHostCheck: true,
   hot,
-  stats: 'errors-only'
+  stats: 'errors-only',
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8080/',
+      changeOrigin: true,
+    }
+  }
 })
 
 server.listen({ host, port })
