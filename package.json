@@ -16,7 +16,7 @@
     "@babel/preset-react": "^7.7.4",
     "babel-loader": "^8.0.6",
     "html-webpack-plugin": "^3.2.0",
-    "merge": "^1.2.1",
+    "merge": "^2.1.1",
     "ora": "^4.0.3",
     "rimraf": "^3.0.0",
     "rollup-plugin-generate-html-template": "^1.5.0",
